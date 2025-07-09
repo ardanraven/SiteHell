@@ -18,6 +18,35 @@
         }
         .font-cinzel { font-family: 'Cinzel', serif; }
 
+        /* --- TELA DE CARREGAMENTO (PRELOADER) --- */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #01000a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.8s ease-in-out;
+        }
+        #preloader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #pentagram-svg {
+            width: 150px;
+            height: 150px;
+            transform: rotate(180deg); /* Inverte o pentagrama */
+        }
+        #pentagram-path {
+            stroke: #FFFFFF; /* Cor do traço: branco */
+            stroke-width: 1.5; /* Espessura do traço */
+            fill: transparent;
+        }
+
         /* --- Fundo Estrelado --- */
         #star-canvas {
             position: fixed;
@@ -62,23 +91,45 @@
 
         /* --- Cartas de Ritual --- */
         .ritual-card {
-            background: rgba(19, 17, 34, 0.5);
+            position: relative;
+            overflow: hidden; /* Garante que o pseudo-elemento não vaze */
+            background-color: rgba(19, 17, 34, 0.5);
             border: 1px solid rgba(192, 132, 252, 0.2);
             border-radius: 1rem;
             padding: 2rem;
             backdrop-filter: blur(10px);
-            transition: all 0.4s ease;
             opacity: 0;
             transform: translateY(30px);
             transition: opacity 0.6s ease-out, transform 0.6s ease-out, background-color 0.3s, border-color 0.3s;
         }
+        
+        /* Camada de estrelas animadas para os cards */
+        .ritual-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            z-index: 0;
+            background-image: 
+                radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.4) 1px, transparent 1.5px),
+                radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.4) 1px, transparent 1.5px),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.3) 1px, transparent 1.5px),
+                radial-gradient(circle at 90% 85%, rgba(255, 255, 255, 0.4) 1px, transparent 1.5px),
+                radial-gradient(circle at 25% 80%, rgba(255, 255, 255, 0.3) 1px, transparent 1.5px),
+                radial-gradient(circle at 60% 90%, rgba(255, 255, 255, 0.3) 1px, transparent 1.5px);
+            background-size: 50% 50%;
+            animation: twinkle-stars 80s linear infinite;
+        }
+
         .section.is-visible .ritual-card {
             opacity: 1;
             transform: translateY(0);
         }
         .ritual-card:hover {
             transform: translateY(-10px);
-            background: rgba(30, 27, 50, 0.7);
+            background-color: rgba(30, 27, 50, 0.7);
             border-color: rgba(192, 132, 252, 0.5);
         }
         .ritual-icon {
@@ -103,6 +154,10 @@
             40% { transform: translate(-50%, -20px); }
             60% { transform: translate(-50%, -10px); }
         }
+        @keyframes twinkle-stars {
+            from { transform: translate(0, 0); }
+            to { transform: translate(-50%, -50%); }
+        }
         
         /* Delay para animação escalonada */
         .delay-1 { transition-delay: 0.1s; }
@@ -113,7 +168,14 @@
 
     </style>
 </head>
-<body>
+<body class="opacity-0 transition-opacity duration-500">
+    <!-- TELA DE CARREGAMENTO -->
+    <div id="preloader">
+        <svg id="pentagram-svg" viewBox="-2 -2 60 56">
+            <polyline id="pentagram-path" points="28,2 10,50 54,18 2,18 46,50 28,2" />
+        </svg>
+    </div>
+
     <canvas id="star-canvas"></canvas>
 
     <!-- SEÇÃO 1: HERÓI -->
@@ -145,42 +207,48 @@
                 
                 <!-- Card: Purificação e Saúde -->
                 <div class="ritual-card delay-1">
-                    <svg class="ritual-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" /></svg>
-                    <h3 class="font-cinzel text-2xl font-bold text-purple-300 mb-4">Purificação e Saúde</h3>
-                    <div class="space-y-2 text-gray-300">
-                        <p>Limpeza Coletiva: <span class="font-medium text-yellow-200 float-right">R$ 222</span></p>
-                        <p>Proteção Individual: <span class="font-medium text-yellow-200 float-right">R$ 454</span></p>
-                        <p>Saúde (Coletivo): <span class="font-medium text-yellow-200 float-right">R$ 227</span></p>
-                        <p>Saúde (Individual): <span class="font-medium text-yellow-200 float-right">R$ 454</span></p>
+                    <div class="relative z-10">
+                        <svg class="ritual-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" /></svg>
+                        <h3 class="font-cinzel text-2xl font-bold text-purple-300 mb-4">Purificação e Saúde</h3>
+                        <div class="space-y-2 text-gray-300">
+                            <p>Limpeza Coletiva: <span class="font-medium text-yellow-200 float-right">R$ 222</span></p>
+                            <p>Proteção Individual: <span class="font-medium text-yellow-200 float-right">R$ 454</span></p>
+                            <p>Saúde (Coletivo): <span class="font-medium text-yellow-200 float-right">R$ 227</span></p>
+                            <p>Saúde (Individual): <span class="font-medium text-yellow-200 float-right">R$ 454</span></p>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Card: Caminhos e Prosperidade -->
                 <div class="ritual-card delay-2">
-                    <svg class="ritual-icon icon-gold" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" /></svg>
-                    <h3 class="font-cinzel text-2xl font-bold text-yellow-300 mb-4">Caminhos e Prosperidade</h3>
-                    <div class="space-y-2 text-gray-300">
-                        <p>Abertura (Coletivo): <span class="font-medium text-white float-right">R$ 222</span></p>
-                        <p>Abertura (Individual): <span class="font-medium text-white float-right">R$ 555</span></p>
-                        <p>Prosperidade c/ Lúcifer (Coletivo): <span class="font-medium text-white float-right">R$ 366</span></p>
-                        <p>Prosperidade c/ Lúcifer (Indiv.): <span class="font-medium text-white float-right">R$ 666</span></p>
+                    <div class="relative z-10">
+                        <svg class="ritual-icon icon-gold" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" /></svg>
+                        <h3 class="font-cinzel text-2xl font-bold text-yellow-300 mb-4">Caminhos e Prosperidade</h3>
+                        <div class="space-y-2 text-gray-300">
+                            <p>Abertura (Coletivo): <span class="font-medium text-white float-right">R$ 222</span></p>
+                            <p>Abertura (Individual): <span class="font-medium text-white float-right">R$ 555</span></p>
+                            <p>Prosperidade c/ Lúcifer (Coletivo): <span class="font-medium text-white float-right">R$ 366</span></p>
+                            <p>Prosperidade c/ Lúcifer (Indiv.): <span class="font-medium text-white float-right">R$ 666</span></p>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Card: Relações e Poder -->
                 <div class="ritual-card delay-3">
-                    <svg class="ritual-icon icon-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
-                    <h3 class="font-cinzel text-2xl font-bold text-blue-300 mb-4">Relações e Poder</h3>
-                    <div class="space-y-2 text-gray-300">
-                        <p>Adoçamento: <span class="font-medium text-yellow-200 float-right">R$ 666</span></p>
-                        <p>Empoderamento: <span class="font-medium text-yellow-200 float-right">R$ 666</span></p>
-                        <p>Corte de Laços: <span class="font-medium text-yellow-200 float-right">R$ 111</span></p>
+                    <div class="relative z-10">
+                        <svg class="ritual-icon icon-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+                        <h3 class="font-cinzel text-2xl font-bold text-blue-300 mb-4">Relações e Poder</h3>
+                        <div class="space-y-2 text-gray-300">
+                            <p>Adoçamento: <span class="font-medium text-yellow-200 float-right">R$ 666</span></p>
+                            <p>Empoderamento: <span class="font-medium text-yellow-200 float-right">R$ 666</span></p>
+                            <p>Corte de Laços: <span class="font-medium text-yellow-200 float-right">R$ 111</span></p>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Card: Ações Diretas -->
                 <div class="ritual-card delay-4 lg:col-span-3">
-                     <div class="flex flex-col md:flex-row items-center">
+                     <div class="relative z-10 flex flex-col md:flex-row items-center">
                         <svg class="ritual-icon icon-red md:mr-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
                         <div class="flex-grow w-full text-center md:text-left">
                             <h3 class="font-cinzel text-2xl font-bold text-red-300 mb-4">Ações Diretas</h3>
@@ -210,6 +278,18 @@
     </main>
 
     <script>
+        // --- LÓGICA DO PRELOADER ---
+        window.addEventListener('load', () => {
+            const preloader = document.getElementById('preloader');
+            const body = document.querySelector('body');
+            
+            // Tempo para o usuário ver o logo antes do site aparecer
+            setTimeout(() => {
+                preloader.classList.add('hidden');
+                body.classList.remove('opacity-0');
+            }, 1500); // Reduzido para 1.5 segundos
+        });
+
         // --- LÓGICA DO CÉU ESTRELADO (CANVAS) ---
         const canvas = document.getElementById('star-canvas');
         const ctx = canvas.getContext('2d');
@@ -232,6 +312,7 @@
         }
 
         function animateStars() {
+            if(!canvas) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             stars.forEach(star => {
                 ctx.beginPath();
@@ -242,8 +323,13 @@
             });
             requestAnimationFrame(animateStars);
         }
+        
+        // Adiciona um listener para o evento 'resize' do body para re-desenhar o canvas
+        const resizeObserver = new ResizeObserver(() => {
+            resizeCanvas();
+        });
+        resizeObserver.observe(document.body);
 
-        window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
         animateStars();
 
